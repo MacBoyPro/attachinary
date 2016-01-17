@@ -5,63 +5,39 @@ module Attachinary
     include Base
 
     def attachinary_orm_definition(options)
-      relation = "#{options[:singular]}_files"
-
-      # has_many :photo_files, ...
-      # has_many :image_files, ...
-      if Rails::VERSION::MAJOR == 3
-        has_many :out, :"#{relation}",
-          type: 'attachinariable',
-          model_class: ::Attachinary::File,
-          conditions: { scope: options[:scope].to_s },
-          dependent: :destroy
+      if options[:single]
+        # has_one :photo, ...
+          has_one :out, :"#{options[:scope]}",
+            type: 'attachinariable',
+            model_class: ::Attachinary::File,
+            dependent: :destroy
       else
-        has_many :out, :"#{relation}",
-          -> { where scope: options[:scope].to_s }, 
-          type: 'attachinariable',
-          model_class: ::Attachinary::File,
-          dependent: :destroy
+        # has_many :images, ...
+          has_many :out, :"#{options[:scope]}",
+            type: 'attachinariable',
+            model_class: ::Attachinary::File,
+            dependent: :destroy
       end
 
-
-      # def photo=(file)
+      # alias_method "orig_photo=", "photo="
+      # def photo=(input)
       #   input = Attachinary::Utils.process_input(input, upload_options)
-      #   if input.blank?
-      #     photo_files.clear
+      #   if input.nil?
+      #     super(nil)
       #   else
       #     files = [input].flatten
-      #     self.photo_files = files
+      #     super(options[:single] ? files[0] : files)
       #   end
       # end
+      alias_method "orig_#{options[:scope]}=", "#{options[:scope]}="
       define_method "#{options[:scope]}=" do |input, upload_options = {}|
-        input = Attachinary::Utils.process_input(input, upload_options, options[:scope])
-        if input.nil?
-          send("#{relation}").clear
-        else
-          files = [input].flatten
-          send("#{relation}=", files)
+        input = Attachinary::Utils.process_input(input, upload_options)
+        if !input.nil?
+          input = [input].flatten
+          input = (options[:single] ? input[0] : input)
         end
+        send("orig_#{options[:scope]}=", input)
       end
-
-
-      if options[:single]
-        # def photo
-        #   photo_files.first
-        # end
-        define_method "#{options[:scope]}" do
-          send("#{relation}").first
-        end
-
-      else # plural
-        # def images
-        #   image_files
-        # end
-        define_method "#{options[:scope]}" do
-          send("#{relation}")
-        end
-      end
-
     end
-
   end
 end

@@ -5,8 +5,6 @@ module Attachinary
     include Base
 
     def attachinary_orm_definition(options)
-      relation = "#{options[:singular]}_files"
-
       # has_many :photo_files, ...
       # has_many :image_files, ...
       if Rails::VERSION::MAJOR == 3
