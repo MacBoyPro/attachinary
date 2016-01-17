@@ -18,9 +18,6 @@ group :mongoid do
   gem 'mongoid'
 end
 
-group :neo4j do
-  gem 'neo4j'
-end
 
 
 # Declare any dependencies that are still in development here instead of in

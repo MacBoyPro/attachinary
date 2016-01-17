@@ -29,4 +29,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'database_cleaner'
   s.add_development_dependency 'rb-fsevent', '~> 0.9.1'
   s.add_development_dependency 'guard-rspec'
+  s.add_development_dependency 'neo4j'
 end
